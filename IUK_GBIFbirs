@@ -1,0 +1,32 @@
+library(rgbif)
+library(maps)
+require(tidyverse)
+require(dplyr)
+require(plyr)
+
+
+# if your species is widespread but you want to work on a particular region, you can download records within a specified window of coordinates:
+gbif_data <- occ_data(scientificName = NULL, classKey = 212, hasCoordinate = TRUE, limit = 2000, decimalLongitude = "-8.36, 1.6", decimalLatitude = "49, 60")  # note that coordinate ranges must be specified this way: "smaller, larger" (e.g. "-5, -2")
+
+gbif_data
+
+# get the DOIs for citing these data properly:
+gbif_citation(gbif_data)
+# note: if you need or prefer only one DOI for the entire dataset, download the dataset directly from www.gbif.org and then import the .csv to R. It is very important to properly cite the data sources! GBIF is not a source, just a repository for many people who put in very hard work to collect these data and make them available
+
+# check how the data are organized:
+names(gbif_data)
+names(gbif_data$meta)
+objct = gbif_data$data
+colnames(objct)
+tablebird = table(objct$species)
+
+objct <- objct %>%
+  tibble::rowid_to_column()
+glimpse(objct)
+
+
+newdata <- objct %>%
+  select(rowid,species, family) %>%
+  group_by(family) %>%
+  add_count(family, species = species)
