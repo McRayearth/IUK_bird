@@ -4,9 +4,8 @@ require(tidyverse)
 require(dplyr)
 require(plyr)
 
-
-# if your species is widespread but you want to work on a particular region, you can download records within a specified window of coordinates:
-gbif_data <- occ_data(scientificName = NULL, classKey = 212, hasCoordinate = TRUE, limit = 2000, decimalLongitude = "-8.36, 1.6", decimalLatitude = "49, 60")  # note that coordinate ranges must be specified this way: "smaller, larger" (e.g. "-5, -2")
+#get species ocurrences
+gbif_data <- occ_data(scientificName = NULL, classKey = 212, year='1999,2000', hasCoordinate = TRUE, limit = 2000, decimalLongitude = "-8.36, 1.6", decimalLatitude = "49, 60")  # note that coordinate ranges must be specified this way: "smaller, larger" (e.g. "-5, -2")
 
 gbif_data
 
@@ -17,16 +16,24 @@ gbif_citation(gbif_data)
 # check how the data are organized:
 names(gbif_data)
 names(gbif_data$meta)
+#extract ocurrence table from dataset
 objct = gbif_data$data
 colnames(objct)
-tablebird = table(objct$species)
 
+#assign row ID
 objct <- objct %>%
   tibble::rowid_to_column()
 glimpse(objct)
 
+#read species international names 
+iuk = read.csv("c:/UK_birds/Birds_World_MASTERnames.csv")
+colnames(iuk)[3] = "species"
 
+#Formart, count species species registered in table, join with common names in multiple languages
 newdata <- objct %>%
   select(rowid,species, family) %>%
   group_by(family) %>%
-  add_count(family, species = species)
+  add_count(family, species = species)%>%
+  inner_join(iuk,by = "species")
+
+write.csv(newdata,file="c:/UK_birds/IUK_bird_list.csv")
