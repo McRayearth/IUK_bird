@@ -5,7 +5,7 @@ require(dplyr)
 require(plyr)
 
 #get species ocurrences
-gbif_data <- occ_data(scientificName = NULL, classKey = 212, year='1999,2000', hasCoordinate = TRUE, limit = 2000, decimalLongitude = "-8.36, 1.6", decimalLatitude = "49, 60")  # note that coordinate ranges must be specified this way: "smaller, larger" (e.g. "-5, -2")
+gbif_data <- occ_data(scientificName = NULL, classKey = 212, year='2020,2023', hasCoordinate = TRUE, limit = 2000, decimalLongitude = "-8.36, 1.6", decimalLatitude = "49, 60")  # note that coordinate ranges must be specified this way: "smaller, larger" (e.g. "-5, -2")
 
 gbif_data
 
@@ -34,6 +34,7 @@ newdata <- objct %>%
   select(rowid,species, family) %>%
   group_by(family) %>%
   add_count(family, species = species)%>%
+  distinct(species, .keep_all= TRUE)%>%
   inner_join(iuk,by = "species")
 
-write.csv(newdata,file="c:/UK_birds/IUK_bird_list.csv")
+write.csv(newdata , file="c:/UK_birds/IUK_bird_list.csv")
